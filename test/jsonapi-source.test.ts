@@ -1,3 +1,4 @@
+import { isQueryable, isUpdatable } from '@orbit/data';
 import { RecordSource } from '@orbit/records';
 import { AxiosInstance } from 'axios';
 import { JSONAPISource } from '../src';
@@ -27,4 +28,32 @@ describe('jsonapi-source', () => {
 
     expect(axiosInstance.defaults.timeout).toBe(5000);
   });
+
+  it('is updatable', () => {
+    expect(isUpdatable(source)).toBeTruthy();
+  });
+
+  it('is queryable', () => {
+    expect(isQueryable(source)).toBeTruthy();
+  });
+
+  describe('getAxiosInstance', () => {
+    it('allows changing axios settings', () => {
+      source = JSONAPISource.create({
+        getAxiosInstance(axiosInstance) {
+          axiosInstance.defaults.headers.common.Accept = 'application/json';
+          axiosInstance.defaults.timeout = 0;
+          return axiosInstance;
+        },
+      });
+
+      const axiosInstance = source.axiosInstance as AxiosInstance;
+      expect(axiosInstance.defaults.headers.common).toMatchObject({
+        Accept: 'application/json',
+      });
+
+      expect(axiosInstance.defaults.timeout).toBe(0);
+    });
+  });
 });
+

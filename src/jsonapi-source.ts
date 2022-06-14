@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-shadow */
+import { queryable, updatable } from '@orbit/data';
 import { RecordSource } from '@orbit/records';
 import axios, { AxiosInstance } from 'axios';
 
@@ -16,14 +17,18 @@ const JSONAPISource = {
 
     const axiosInstance = createAxiosInstance();
 
+    const jsonapiSource = Object.create(RecordSource.prototype);
 
-    return Object.create(RecordSource.prototype, {
-      axiosInstance: {
-        get() {
-          return axiosInstance;
-        },
+    Object.defineProperty(jsonapiSource, 'axiosInstance', {
+      get() {
+        return axiosInstance;
       },
     });
+
+    updatable(jsonapiSource.constructor);
+    queryable(jsonapiSource.constructor);
+
+    return jsonapiSource as any;
 
 
     function createAxiosInstance() {
